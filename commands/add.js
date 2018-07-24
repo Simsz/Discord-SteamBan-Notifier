@@ -4,18 +4,29 @@ const request = require('request');
 
 exports.run = async (client, msg, args) => {
 	if (!args[0]) {
-		msg.channel.send('*Template:* Usage: `' + this.help.usage + '`').catch(() => {});
+		msg.channel.send({embed: {
+			title: 'Error',
+			description: 'Usage: `' + client.config.prefix + this.help.usage + '`',
+			color: Discord.Util.resolveColor('#ff0000')
+		}}).catch(() => {});
 		return;
 	}
 
-	var m = await msg.channel.send('*Template:* Please wait...').catch(() => {});
+	var m = await msg.channel.send({embed: {
+		title: 'Please wait...',
+		color: Discord.Util.resolveColor('#ff8000')
+	}}).catch(() => {});
 	if (!m) return;
 
 	client.steamParse64ID(args[0]).then((steamid) => {
 		client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
 		request('https://api.steampowered.com/ISteamUser/GetPlayerBans/v1?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + steamid, (err, res, body) => {
 			if (err) {
-				m.edit('No response from the Steam API').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Failed to contact Steam API',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 				console.error(err);
 				return;
 			}
@@ -26,13 +37,21 @@ exports.run = async (client, msg, args) => {
 			} catch(e) {};
 
 			if (!banJson) {
-				m.edit('Malformed Steam API response').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Malformed Steam API response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 				console.log(body);
 				return;
 			}
 
 			if (!banJson.players || banJson.players.length < 1) {
-				m.edit('Malformed Steam API response').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Malformed Steam API response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 				console.log(banJson);
 				return;
 			}
@@ -40,7 +59,11 @@ exports.run = async (client, msg, args) => {
 			client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
 			request('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + steamid, (err, res, body) => {
 				if (err) {
-					m.edit('No response from the Steam API').catch(() => {});
+					m.edit({embed: {
+						title: 'Error',
+						description: 'Failed to contact Steam API',
+						color: Discord.Util.resolveColor('#ff0000')
+					}}).catch(() => {});
 					console.error(err);
 					return;
 				}
@@ -51,19 +74,31 @@ exports.run = async (client, msg, args) => {
 				} catch(e) {};
 
 				if (!profileJson) {
-					m.edit('Malformed Steam API response').catch(() => {});
+					m.edit({embed: {
+						title: 'Error',
+						description: 'Malformed Steam API response',
+						color: Discord.Util.resolveColor('#ff0000')
+					}}).catch(() => {});
 					console.log(body);
 					return;
 				}
 
 				if (!profileJson.response) {
-					m.edit('Malformed Steam API response').catch(() => {});
+					m.edit({embed: {
+						title: 'Error',
+						description: 'Malformed Steam API response',
+						color: Discord.Util.resolveColor('#ff0000')
+					}}).catch(() => {});
 					console.log(profileJson);
 					return;
 				}
 
 				if (!profileJson.response.players || profileJson.response.players.length < 1) {
-					m.edit('Malformed Steam API response').catch(() => {});
+					m.edit({embed: {
+						title: 'Error',
+						description: 'Malformed Steam API response',
+						color: Discord.Util.resolveColor('#ff0000')
+					}}).catch(() => {});
 					console.log(profileJson);
 					return;
 				}
@@ -72,15 +107,16 @@ exports.run = async (client, msg, args) => {
 					var data = JSON.parse(fs.readFileSync('./data/' + profileJson.response.players[0].steamid + '.json'));
 
 					if (data.channels.includes(msg.channel.id)) {
-						m.edit('*Template:* `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` is already being watched').catch(() => {});
+						m.edit({embed: {
+							title: 'Error',
+							description: '`' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` is already being watched',
+							color: Discord.Util.resolveColor('#ff0000')
+						}}).catch(() => {});
 						return;
 					}
 
 					data.channels.push(msg.channel.id);
 					data.lastSavedName = profileJson.response.players[0].personaname;
-
-					fs.writeFileSync('./data/' + profileJson.response.players[0].steamid + '.json', JSON.stringify(data, null, 4));
-					m.edit('*Template:* Added `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` to the watchlist').catch(() => {});
 				} else {
 					var data = {
 						steamID: profileJson.response.players[0].steamid,
@@ -95,25 +131,45 @@ exports.run = async (client, msg, args) => {
 							msg.channel.id
 						]
 					};
-
-					fs.writeFileSync('./data/' + steamid + '.json', JSON.stringify(data, null, 4));
-					m.edit('*Template:* Added `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` to the watchlist').catch(() => {});
 				}
+
+				fs.writeFileSync('./data/' + profileJson.response.players[0].steamid + '.json', JSON.stringify(data, null, 4));
+				m.edit({embed: {
+					title: 'Success',
+					description: 'Added `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` to the watchlist',
+					color: Discord.Util.resolveColor('#00ff00')
+				}}).catch(() => {});
 			});
 		});
 	}).catch((err) => {
 		if (typeof err === 'string') {
 			if (err === 'Malformed Steam API Response') {
-				m.edit('*Template:* ' + err).catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Malformed Steam API Response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			} else if (err === 'No match') {
-				m.edit('*Template:* Could not get SteamID64').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Could not get SteamID64',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			} else {
 				console.log(err);
-				m.edit('*Template:* Unknown Steam Response').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Unknown Steam Response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			}
 		} else {
 			console.error(err);
-			m.edit('*Template:* Unknown Steam Response').catch(() => {});
+			m.edit({embed: {
+				title: 'Error',
+				description: 'Unknown Steam Response',
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
 		}
 	});
 };

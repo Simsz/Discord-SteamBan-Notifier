@@ -19,6 +19,14 @@ exports.run = async (client, msg, args) => {
 	howToUse.push('Eg: Add someone to the watchlist in #admin then the ban notification will also appear in that channel and the `list` command will only return the watch list of the current channel. If a channel is deleted its watchlist is deleted');
 	embed.addField('How to use?', howToUse.join('\n') + '\n' + String.fromCodePoint(0x200B));
 
+	var commands = []; // Maybe automate this in the future?
+	commands.push('• `' + client.config.prefix + 'add` - Add a user to the watchlist');
+	commands.push('• `' + client.config.prefix + 'remove` - Remove a user from the watchlist');
+	commands.push('• `' + client.config.prefix + 'list` - List all users in this channel\'s watchlist');
+	commands.push('• `' + client.config.prefix + 'stats` - Get some bot stats');
+	commands.push('• `' + client.config.prefix + 'help` - Show this help');
+	embed.addField('Command List', commands.join('\n') + '\n' + String.fromCodePoint(0x200B));
+
 	embed.addField('Bot Invite Link', inviteLink + '\n' + String.fromCodePoint(0x200B));
 
 	msg.channel.send({embed: embed}).catch((e) => console.error(e));

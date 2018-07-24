@@ -2,11 +2,18 @@ const fs = require('fs');
 
 exports.run = async (client, msg, args) => {
 	if (!args[0]) {
-		msg.channel.send('*Template:* Usage: `' + this.help.usage + '`').catch(() => {});
+		msg.channel.send({embed: {
+			title: 'Error',
+			description: 'Usage: `' + client.config.prefix + this.help.usage + '`',
+			color: Discord.Util.resolveColor('#ff0000')
+		}}).catch(() => {});
 		return;
 	}
 
-	var m = await msg.channel.send('*Template:* Please wait...').catch(() => {});
+	var m = await msg.channel.send({embed: {
+		title: 'Please wait...',
+		color: Discord.Util.resolveColor('#ff8000')
+	}}).catch(() => {});
 	if (!m) return;
 
 	client.steamParse64ID(args[0]).then((steamid) => {
@@ -22,24 +29,48 @@ exports.run = async (client, msg, args) => {
 				if (json.channels.length < 1) fs.unlinkSync('./data/' + files[i]);
 				else fs.writeFileSync('./data/' + files[i], JSON.stringify(json, null, 4));
 
-				m.edit('*Template:* Successfully removed ' + steamid + ' from watch list').catch(() => {});
+				m.edit({embed: {
+					title: 'Success',
+					description: 'Removed `' + steamid + '` from the watchlist',
+					color: Discord.Util.resolveColor('#00ff00')
+				}}).catch(() => {});
 				break;
 			}
 		}
-		if (!found) m.edit('*Template:* ' + steamid + ' is not being watched').catch(() => {});
+		if (!found) m.edit({embed: {
+			title: 'Error',
+			description: '`' + steamid + '` is not being watched',
+			color: Discord.Util.resolveColor('#ff0000')
+		}}).catch(() => {});
 	}).catch((err) => {
 		if (typeof err === 'string') {
 			if (err === 'Malformed Steam API Response') {
-				m.edit('*Template:* ' + err).catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Malformed Steam API Response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			} else if (err === 'No match') {
-				m.edit('*Template:* Could not get SteamID64').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Could not get SteamID64',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			} else {
 				console.log(err);
-				m.edit('*Template:* Unknown Steam Response').catch(() => {});
+				m.edit({embed: {
+					title: 'Error',
+					description: 'Unknown Steam Response',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
 			}
 		} else {
 			console.error(err);
-			m.edit('*Template:* Unknown Steam Response').catch(() => {});
+			m.edit({embed: {
+				title: 'Error',
+				description: 'Unknown Steam Response',
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
 		}
 	});
 };
