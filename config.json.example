@@ -1,0 +1,15 @@
+{
+	"botToken": "<BOTTOKEN>",
+	"prefix": "sb!",
+	"owner": "138377192278196225",
+	"admins": [
+		"138377192278196225"
+	],
+	"steamAPIkeys": [
+		"<API Key 1>",
+		"<API Key 2>"
+	],
+	"switchKeyAt": 50000,
+	"accountsPerRequest": 500,
+	"logs": "471135120347234314"
+}

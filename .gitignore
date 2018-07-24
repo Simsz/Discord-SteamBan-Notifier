@@ -1,0 +1,7 @@
+.vscode
+node_modules
+config.json
+apiKeys.json
+
+data/*
+!data/76561198849204662.json
