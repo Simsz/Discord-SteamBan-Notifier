@@ -1,4 +1,5 @@
 const fs = require('fs');
+const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
 	if (!args[0]) {
