@@ -1,15 +1,15 @@
-const fs = require('fs');
 const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
-	var files = fs.readdirSync('./data');
+	var datas = await client.accounts.fetchEverything();
+
 	var users = [];
-	files.forEach((file) => {
-		var json = JSON.parse(fs.readFileSync('./data/' + file));
-		if (json.channels.includes(msg.channel.id)) {
-			users.push({ steamID: json.steamID, name: json.lastSavedName });
+	datas.forEach((data) => {
+		if (data.channels.includes(msg.channel.id)) {
+			users.push({ steamID: data.steamID, name: data.lastSavedName });
 		}
 	});
+
 	if (users.length < 1) return msg.channel.send({embed: {
 		title: 'Error',
 		description: 'This channel\'s watchlist is empty',

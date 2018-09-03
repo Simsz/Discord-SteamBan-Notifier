@@ -1,4 +1,3 @@
-const fs = require('fs');
 const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
@@ -17,32 +16,39 @@ exports.run = async (client, msg, args) => {
 	}}).catch(() => {});
 	if (!m) return;
 
-	client.steamParse64ID(args[0]).then((steamid) => {
-		var files = fs.readdirSync('./data');
-		var found = false;
-		for (let i = 0; i < files.length; i++) {
-			var json = JSON.parse(fs.readFileSync('./data/' + files[i]));
-			var index = json.channels.indexOf(msg.channel.id);
-			if (index >= 0) {
-				found = true;
-				json.channels.splice(index, 1);
-
-				if (json.channels.length < 1) fs.unlinkSync('./data/' + files[i]);
-				else fs.writeFileSync('./data/' + files[i], JSON.stringify(json, null, 4));
-
-				m.edit({embed: {
-					title: 'Success',
-					description: 'Removed `' + steamid + '` from the watchlist',
-					color: Discord.Util.resolveColor('#00ff00')
-				}}).catch(() => {});
-				break;
-			}
+	client.steamParse64ID(args[0]).then(async (steamid) => {
+		await client.accounts.fetch(steamid);
+		if (!client.accounts.get(steamid)) {
+			m.edit({embed: {
+				title: 'Error',
+				description: '`' + steamid + '` is not being watched',
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
+			return;
 		}
-		if (!found) m.edit({embed: {
-			title: 'Error',
-			description: '`' + steamid + '` is not being watched',
-			color: Discord.Util.resolveColor('#ff0000')
-		}}).catch(() => {});
+
+		var data = client.accounts.get(steamid);
+		var index = data.channels.indexOf(msg.channel.id);
+		if (index >= 0) {
+			data.channels.splice(index, 1);
+
+			if (data.channels.length < 1) client.accounts.delete(steamid);
+			else client.accounts.set(steamid, data);
+
+			m.edit({embed: {
+				title: 'Success',
+				description: 'Removed `' + steamid + '` from the watchlist',
+				color: Discord.Util.resolveColor('#00ff00')
+			}}).catch(() => {});
+		} else {
+			// Should never happen
+			m.edit({embed: {
+				title: 'Error',
+				description: '`' + steamid + '` is not being watched',
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
+			return;
+		}
 	}).catch((err) => {
 		if (typeof err === 'string') {
 			if (err === 'Malformed Steam API Response') {

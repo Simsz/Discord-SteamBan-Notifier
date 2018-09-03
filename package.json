@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "better-sqlite-pool": "^0.1.2",
     "discord.js": "github:discordjs/discord.js",
+    "enmap": "^4.0.12",
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "request": "^2.87.0"

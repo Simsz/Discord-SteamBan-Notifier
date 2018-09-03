@@ -1,9 +1,11 @@
 const fs = require('fs');
+const Enmap = require('enmap');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
 const config = require('./config.json');
 client.config = config;
+client.accounts = new Enmap({ name: 'accounts' });
 client.commands = new Discord.Collection();
 require('./modules/functions.js')(client);
 
@@ -54,4 +56,9 @@ fs.readdir('./events/', (err, files) => {
 	});
 });
 
-client.login(client.config.botToken);
+client.login(client.config.botToken).then(() => {
+	client.fetchApplication().then((r) => {
+		client.config.owner = r.owner.id;
+		if (config.admins) config.admins.push(r.owner.id);
+	}).catch((e) => console.error(e));
+});

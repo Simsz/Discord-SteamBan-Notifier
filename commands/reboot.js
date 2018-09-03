@@ -2,7 +2,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
-	if (!client.config.admins.includes(msg.author.id) && client.config.owner !== msg.author.id) return;
+	if (!client.config.admins.includes(msg.author.id)) return;
 
 	const embed = new Discord.MessageEmbed();
 	embed.setTimestamp();

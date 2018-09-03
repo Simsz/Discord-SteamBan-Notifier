@@ -109,7 +109,7 @@ module.exports = (client) => {
 
 	(() => {
 		var og = console.log;
-		console.log = (n) => {
+		console.log = (n, ownerOnly = false) => {
 			og(n);
 
 			if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
@@ -122,7 +122,12 @@ module.exports = (client) => {
 			var text = '```' + n;
 			embed.setDescription(text.substring(0, 2024) + '```');
 			embed.setColor('#63e10f');
-			if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
+
+			if (ownerOnly === true) {
+				if (client.users.get(client.config.owner)) client.users.get(client.config.owner).send({embed: embed});
+			} else {
+				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
+			}
 		}
 	})();
 

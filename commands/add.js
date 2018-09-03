@@ -1,4 +1,3 @@
-const fs = require('fs');
 const Discord = require('discord.js');
 const request = require('request');
 
@@ -57,7 +56,7 @@ exports.run = async (client, msg, args) => {
 			}
 
 			client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
-			request('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + steamid, (err, res, body) => {
+			request('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + steamid, async (err, res, body) => {
 				if (err) {
 					m.edit({embed: {
 						title: 'Error',
@@ -103,8 +102,10 @@ exports.run = async (client, msg, args) => {
 					return;
 				}
 
-				if (fs.existsSync('./data/' + profileJson.response.players[0].steamid + '.json')) {
-					var data = JSON.parse(fs.readFileSync('./data/' + profileJson.response.players[0].steamid + '.json'));
+				await client.accounts.fetch(profileJson.response.players[0].steamid);
+
+				if (client.accounts.get(profileJson.response.players[0].steamid)) {
+					var data = client.accounts.get(profileJson.response.players[0].steamid);
 
 					if (data.channels.includes(msg.channel.id)) {
 						m.edit({embed: {
@@ -133,7 +134,8 @@ exports.run = async (client, msg, args) => {
 					};
 				}
 
-				fs.writeFileSync('./data/' + profileJson.response.players[0].steamid + '.json', JSON.stringify(data, null, 4));
+				client.accounts.set(profileJson.response.players[0].steamid, data);
+
 				m.edit({embed: {
 					title: 'Success',
 					description: 'Added `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` to the watchlist',
