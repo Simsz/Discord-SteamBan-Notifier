@@ -38,7 +38,7 @@ module.exports = (client) => {
 			check = check.replace('steamcommunity.com/profiles/', '');
 			check = check.replace(/\//g, '');
 
-			if (/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/.test(check)) {
+			if (/[0-9]{16,18}/.test(check)) {
 				resolve(check);
 				return;
 			}

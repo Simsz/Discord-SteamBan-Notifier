@@ -178,6 +178,6 @@ exports.run = async (client, msg, args) => {
 
 exports.help = {
 	name: 'add',
-	description: 'Add a user to the watch list',
+	description: 'Add a user to the watchlist',
 	usage: 'add <SteamID64/ProfileLink>'
 };

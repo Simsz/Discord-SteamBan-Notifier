@@ -1,14 +1,14 @@
 const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
-	var owner = await client.fetchApplication().catch((e) => console.error(e));
+	var app = await client.fetchApplication().catch((e) => console.error(e));
 	var inviteLink = await client.generateInvite([ 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS' ]).catch((e) => console.error(e));
 
 	const embed = new Discord.MessageEmbed();
 	embed.setTimestamp();
 	embed.setAuthor(msg.author.tag, msg.author.avatarURL({format: 'png'}));
 	embed.setTitle('Help Information');
-	embed.setDescription('This bot was created by ' + (owner ? owner.tag : '*Failed to fetch owner tag*') + '. Previously only available as a private version now this bot is public and also [available on Github](https://github.com/BeepFelix/discord-steamban-notifier)' + '\n' + String.fromCodePoint(0x200B));
+	embed.setDescription('This bot was created by ' + (app.owner ? app.owner.tag : '*Failed to fetch owner tag*') + '. Previously only available as a private version now this bot is public and also [available on Github](https://github.com/BeepFelix/discord-steamban-notifier).' + '\n' + String.fromCodePoint(0x200B));
 
 	var howToUse = [];
 	howToUse.push('• To add someone to the checker list write `' + client.config.prefix + 'add <SteamID64/ProfileLink>`');
@@ -34,6 +34,6 @@ exports.run = async (client, msg, args) => {
 
 exports.help = {
 	name: 'help',
-	description: 'Should help you understanding how this bot works',
+	description: 'Show this help',
 	usage: 'help [command]'
 };

@@ -138,6 +138,6 @@ exports.run = async (client, msg, args) => {
 
 exports.help = {
 	name: 'list',
-	description: 'List your watchlist',
+	description: 'List all users in this channel\'s watchlist',
 	usage: 'list [page]'
 };

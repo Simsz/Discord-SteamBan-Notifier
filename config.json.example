@@ -8,5 +8,6 @@
 	],
 	"switchKeyAt": 50000,
 	"accountsPerRequest": 500,
-	"logs": "471135120347234314"
+	"logs": "471135120347234314",
+	"maintenance": false
 }
