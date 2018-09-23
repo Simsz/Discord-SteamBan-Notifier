@@ -35,7 +35,7 @@ exports.run = async (client, msg, args) => {
 		var showErr = err.length > 1014 ? err.substring(0, 1014 - 3) + "..." : err;
 
 		embed.addField('📤 Failed to evaluate', '```js\n' + showErr + '```');
-		
+
 		msg.channel.send({embed: embed});
 	}
 };

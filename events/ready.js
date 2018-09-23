@@ -18,7 +18,7 @@ module.exports = async client => {
 
 		embed.setTitle('Rebooted! (took: `' + parseInt(m2.editedTimestamp - m2.createdTimestamp) + 'ms)`');
 		await m2.edit({embed: embed});
-		
+
 		fs.unlink('./reboot.json', ()=>{});
 	}
 	console.log('Ready to spy on ' + client.users.size + ' users, in ' + client.channels.size + ' channels of ' + client.guilds.size + ' servers as ' + client.user.tag + '.');

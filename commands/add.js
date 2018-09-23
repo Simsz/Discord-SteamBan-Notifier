@@ -145,26 +145,11 @@ exports.run = async (client, msg, args) => {
 		});
 	}).catch((err) => {
 		if (typeof err === 'string') {
-			if (err === 'Malformed Steam API Response') {
-				m.edit({embed: {
-					title: 'Error',
-					description: 'Malformed Steam API Response',
-					color: Discord.Util.resolveColor('#ff0000')
-				}}).catch(() => {});
-			} else if (err === 'No match') {
-				m.edit({embed: {
-					title: 'Error',
-					description: 'Could not get SteamID64',
-					color: Discord.Util.resolveColor('#ff0000')
-				}}).catch(() => {});
-			} else {
-				console.log(err);
-				m.edit({embed: {
-					title: 'Error',
-					description: 'Unknown Steam Response',
-					color: Discord.Util.resolveColor('#ff0000')
-				}}).catch(() => {});
-			}
+			m.edit({embed: {
+				title: 'Error',
+				description: err,
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
 		} else {
 			console.error(err);
 			m.edit({embed: {

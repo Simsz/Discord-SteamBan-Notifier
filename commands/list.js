@@ -48,7 +48,7 @@ exports.run = async (client, msg, args) => {
 					text: 'Use the reactions to switch pages - You have 3 minutes'
 				}
 			}
-			
+
 			for (let i2 = 0; i2 < chunkArray[i].length; i2++) {
 				tmpPg.fields.push({
 					name: 'Last saved name: ' + Discord.Util.escapeMarkdown(chunkArray[0][i].name),
@@ -69,7 +69,7 @@ exports.run = async (client, msg, args) => {
 
 		msg.channel.send({embed: pages[startPage]}).then((m) => {
 			var cancelAdd = false;
-			
+
 			if (!cancelAdd) m.react('⬅').then(() => {
 				if (cancelAdd) return m.reactions.removeAll().catch(() => {});
 
@@ -109,7 +109,7 @@ exports.run = async (client, msg, args) => {
 					if (nextPage > parseInt(chunkArray.length - 1)) nextPage = 0;
 
 					pages[nextPage].timestamp = new Date();
-					
+
 					m.edit({embed: pages[nextPage]}).catch(() => {});
 					r.users.remove(user.id).catch(() => {});
 				} else if (r.emoji.name === '⏹') {
