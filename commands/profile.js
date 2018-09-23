@@ -158,73 +158,28 @@ exports.run = async (client, msg, args) => {
 							var oldestFriends = friends.slice(friends.length - 3).reverse();
 
 							var description = [];
-							if (oldestFriends[0]) {
-								var res = await client.getSteamProfile(oldestFriends[0].steamid);
-								if (!res) description.push('__**([' + oldestFriends[0].steamid + '](https://steamcommunity.com/profiles/' + oldestFriends[0].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[0].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' [' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[0].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (oldestFriends[1]) {
-								var res = await client.getSteamProfile(oldestFriends[1].steamid);
-								if (!res) description.push('__**([' + oldestFriends[1].steamid + '](https://steamcommunity.com/profiles/' + oldestFriends[1].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[1].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[1].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (oldestFriends[2]) {
-								var res = await client.getSteamProfile(oldestFriends[2].steamid);
-								if (!res) description.push('__**([' + oldestFriends[2].steamid + '](https://steamcommunity.com/profiles/' + oldestFriends[2].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[2].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[2].friend_since * 1000).getTime()).format('D [days]'));
+							for (let i in oldestFriends) {
+								var res = await client.getSteamProfile(oldestFriends[i].steamid);
+								if (!res) description.push('__**([' + oldestFriends[i].steamid + '](https://steamcommunity.com/profiles/' + oldestFriends[i].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[i].friend_since * 1000).getTime()).format('D [days]'));
+								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' [' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(oldestFriends[i].friend_since * 1000).getTime()).format('D [days]'));
 							}
 							description.push('');
 							description.push('\\⏫ Oldest Friends \\⏫ \\⏬ Newest Friends \\⏬');
 							description.push('');
-							if (newestFriends[0]) {
-								var res = await client.getSteamProfile(newestFriends[0].steamid).catch(() => {});
-								if (!res) description.push('__**([' + newestFriends[0].steamid + '](https://steamcommunity.com/profiles/' + newestFriends[0].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[0].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[0].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (newestFriends[1]) {
-								var res = await client.getSteamProfile(newestFriends[1].steamid).catch(() => {});
-								if (!res) description.push('__**([' + newestFriends[1].steamid + '](https://steamcommunity.com/profiles/' + newestFriends[1].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[1].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[1].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (newestFriends[2]) {
-								var res = await client.getSteamProfile(newestFriends[2].steamid).catch(() => {});
-								if (!res) description.push('__**([' + newestFriends[2].steamid + '](https://steamcommunity.com/profiles/' + newestFriends[2].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[2].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[2].friend_since * 1000).getTime()).format('D [days]'));
+							for (let i in newestFriends) {
+								var res = await client.getSteamProfile(newestFriends[i].steamid).catch(() => {});
+								if (!res) description.push('__**([' + newestFriends[i].steamid + '](https://steamcommunity.com/profiles/' + newestFriends[i].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[i].friend_since * 1000).getTime()).format('D [days]'));
+								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(newestFriends[i].friend_since * 1000).getTime()).format('D [days]'));
 							}
 							description.push(String.fromCodePoint(0x200B));
 						} else {
 							friends.reverse();
 
 							var description = [];
-							if (friends[0]) {
-								var res = await client.getSteamProfile(friends[0].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[0].steamid + '](https://steamcommunity.com/profiles/' + friends[0].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[0].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' [' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[0].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (friends[1]) {
-								var res = await client.getSteamProfile(friends[1].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[1].steamid + '](https://steamcommunity.com/profiles/' + friends[1].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[1].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[1].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (friends[2]) {
-								var res = await client.getSteamProfile(friends[2].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[2].steamid + '](https://steamcommunity.com/profiles/' + friends[2].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[2].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[2].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (friends[3]) {
-								var res = await client.getSteamProfile(friends[3].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[3].steamid + '](https://steamcommunity.com/profiles/' + friends[3].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[3].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[3].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (friends[4]) {
-								var res = await client.getSteamProfile(friends[4].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[4].steamid + '](https://steamcommunity.com/profiles/' + friends[4].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[4].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[4].friend_since * 1000).getTime()).format('D [days]'));
-							}
-							if (friends[5]) {
-								var res = await client.getSteamProfile(friends[5].steamid).catch(() => {});
-								if (!res) description.push('__**([' + friends[5].steamid + '](https://steamcommunity.com/profiles/' + friends[5].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[5].friend_since * 1000).getTime()).format('D [days]'));
-								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' ([' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[5].friend_since * 1000).getTime()).format('D [days]'));
+							for (let i in friends) {
+								var res = await client.getSteamProfile(friends[i].steamid).catch(() => {});
+								if (!res) description.push('__**([' + friends[i].steamid + '](https://steamcommunity.com/profiles/' + friends[i].steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[i].friend_since * 1000).getTime()).format('D [days]'));
+								else description.push('__**' + client.escapeEmojis(Discord.Util.escapeMarkdown(res.personaname)) + ' [' + res.steamid + '](https://steamcommunity.com/profiles/' + res.steamid + ')):**__ ' + moment.duration(new Date().getTime() - new Date(friends[i].friend_since * 1000).getTime()).format('D [days]'));
 							}
 							description.push(String.fromCodePoint(0x200B));
 						}
