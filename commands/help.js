@@ -20,6 +20,7 @@ exports.run = async (client, msg, args) => {
 	embed.addField('How to use?', howToUse.join('\n') + '\n' + String.fromCodePoint(0x200B));
 
 	var commands = []; // Maybe automate this in the future?
+	commands.push('• `' + client.config.prefix + 'profile` - Display information about the profile of a steam user');
 	commands.push('• `' + client.config.prefix + 'add` - Add a user to the watchlist');
 	commands.push('• `' + client.config.prefix + 'remove` - Remove a user from the watchlist');
 	commands.push('• `' + client.config.prefix + 'list` - List all users in this channel\'s watchlist');

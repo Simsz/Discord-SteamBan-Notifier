@@ -63,7 +63,6 @@ fs.readdir('./commands/', (err, files) => {
 		if(f.split('.').slice(-1)[0] !== 'js') return;
 		let props = require('./commands/' + f);
 		client.commands.set(props.help.name, props);
-		if(props.init) props.init(client);
 	});
 });
 

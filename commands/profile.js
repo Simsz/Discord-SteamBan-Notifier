@@ -5,6 +5,15 @@ const moment = require('moment');
 require('moment-duration-format');
 
 exports.run = async (client, msg, args) => {
+	if (!args[0]) {
+		msg.channel.send({embed: {
+			title: 'Error',
+			description: 'Usage: `' + client.config.prefix + this.help.usage + '`',
+			color: Discord.Util.resolveColor('#ff0000')
+		}}).catch(() => {});
+		return;
+	}
+
 	var m = await msg.channel.send('Getting user information... Please wait a couple of seconds.');
 
 	client.steamParse64ID(args[0]).then((steamid) => {
