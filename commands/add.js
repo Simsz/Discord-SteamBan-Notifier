@@ -110,7 +110,7 @@ exports.run = async (client, msg, args) => {
 					if (data.channels.includes(msg.channel.id)) {
 						m.edit({embed: {
 							title: 'Error',
-							description: '`' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` is already being watched',
+							description: '`' + client.escapeEmojis(Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname)) + '` is already being watched',
 							color: Discord.Util.resolveColor('#ff0000')
 						}}).catch(() => {});
 						return;
@@ -138,7 +138,7 @@ exports.run = async (client, msg, args) => {
 
 				m.edit({embed: {
 					title: 'Success',
-					description: 'Added `' + Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname) + '` to the watchlist',
+					description: 'Added `' + client.escapeEmojis(Discord.Util.escapeMarkdown(profileJson.response.players[0].personaname)) + '` to the watchlist',
 					color: Discord.Util.resolveColor('#00ff00')
 				}}).catch(() => {});
 			});
@@ -164,5 +164,5 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'add',
 	description: 'Add a user to the watchlist',
-	usage: 'add <SteamID64/ProfileLink>'
+	usage: 'add <SteamID/ProfileLink>'
 };

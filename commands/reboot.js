@@ -21,5 +21,6 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'reboot',
 	description: 'Restarts the bot',
-	usage: 'reboot'
+	usage: 'reboot',
+	hidden: true
 };

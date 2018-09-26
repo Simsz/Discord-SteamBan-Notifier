@@ -32,7 +32,7 @@ exports.run = async (client, msg, args) => {
 		embed.setAuthor(msg.author.tag, msg.author.avatarURL({format: 'png'}));
 		embed.setColor('#06abe1');
 		embed.setDescription('Total watchlist length: ' + users.length);
-		for (let i = 0; i < chunkArray[0].length; i++) embed.addField('Last saved name: ' + Discord.Util.escapeMarkdown(chunkArray[0][i].name), '[' + chunkArray[0][i].steamID + '](https://steamcommunity.com/profiles/' + chunkArray[0][i].steamID + '/)');
+		for (let i = 0; i < chunkArray[0].length; i++) embed.addField('Last saved name: ' + client.escapeEmojis(Discord.Util.escapeMarkdown(chunkArray[0][i].name)), '[' + chunkArray[0][i].steamID + '](https://steamcommunity.com/profiles/' + chunkArray[0][i].steamID + '/)');
 		msg.channel.send({embed: embed}).catch(() => {});
 	} else {
 		// Include page switching
@@ -51,7 +51,7 @@ exports.run = async (client, msg, args) => {
 
 			for (let i2 = 0; i2 < chunkArray[i].length; i2++) {
 				tmpPg.fields.push({
-					name: 'Last saved name: ' + Discord.Util.escapeMarkdown(chunkArray[0][i].name),
+					name: 'Last saved name: ' + client.escapeEmojis(Discord.Util.escapeMarkdown(chunkArray[0][i].name)),
 					value: '[' + chunkArray[0][i].steamID + '](https://steamcommunity.com/profiles/' + chunkArray[0][i].steamID + '/)'
 				});
 			}

@@ -70,5 +70,5 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'remove',
 	description: 'Remove a user from the watchlist',
-	usage: 'remove <SteamID64/ProfileLink>'
+	usage: 'remove <SteamID/ProfileLink>'
 };

@@ -132,7 +132,7 @@ exports.run = async (client, msg, args) => {
 					// We have all base information we need. Lets build the embed!
 					const embed = new Discord.MessageEmbed();
 					embed.setAuthor(msg.author.tag, msg.author.avatarURL(), msg.url);
-					embed.setColor(0);
+					embed.setColor('#000000');
 					embed.setFooter('Account creation date');
 					embed.setThumbnail(profile.avatarfull || profile.avatarmedium || profile.avatar);
 					embed.setTimestamp(new Date(profile.timecreated * 1000));
@@ -197,11 +197,11 @@ exports.run = async (client, msg, args) => {
 
 					// Ban information
 					var description = [];
-					description.push('__**Community Banned:**__ ' + (!bans.CommunityBanned ? client.emojis.get('484008260211441664').toString() : client.emojis.get('484008172273664030').toString()));
-					description.push('__**VAC Banned:**__ ' + (bans.NumberOfVACBans <= 0 ? client.emojis.get('484008260211441664').toString() : (bans.NumberOfVACBans + ' VAC ban' + (bans.NumberOfVACBans === 1 ? '' : 's'))));
-					description.push('__**Game Banned:**__ ' + (bans.NumberOfGameBans <= 0 ? client.emojis.get('484008260211441664').toString() : (bans.NumberOfGameBans + ' Game ban' + (bans.NumberOfGameBans === 1 ? '' : 's'))));
+					description.push('__**Community Banned:**__ ' + (!bans.CommunityBanned ? client.emojis.get(client.config.emojis.cross).toString() : client.emojis.get(client.config.emojis.checkmark).toString()));
+					description.push('__**VAC Banned:**__ ' + (bans.NumberOfVACBans <= 0 ? client.emojis.get(client.config.emojis.cross).toString() : (bans.NumberOfVACBans + ' VAC ban' + (bans.NumberOfVACBans === 1 ? '' : 's'))));
+					description.push('__**Game Banned:**__ ' + (bans.NumberOfGameBans <= 0 ? client.emojis.get(client.config.emojis.cross).toString() : (bans.NumberOfGameBans + ' Game ban' + (bans.NumberOfGameBans === 1 ? '' : 's'))));
 					if (bans.NumberOfGameBans >= 1 || bans.NumberOfVACBans >= 1) description.push('__**Last Ban:**__ ' + bans.DaysSinceLastBan + ' day' + (bans.DaysSinceLastBan === 1 ? '' : 's') + ' ago');
-					description.push('__**Economy Banned:**__ ' + (bans.EconomyBan === 'none' ? client.emojis.get('484008260211441664').toString() : bans.EconomyBan));
+					description.push('__**Economy Banned:**__ ' + (bans.EconomyBan === 'none' ? client.emojis.get(client.config.emojis.cross).toString() : client.emojis.get(client.config.emojis.checkmark).toString()));
 					description.push(String.fromCodePoint(0x200B));
 					embed.addField('Ban Information', description.join('\n'));
 
@@ -230,5 +230,5 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'profile',
 	description: 'Get profile information of a steam user',
-	usage: 'profile <SteamID64/ProfileLink>'
+	usage: 'profile <SteamID/ProfileLink>'
 };

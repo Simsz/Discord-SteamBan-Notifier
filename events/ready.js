@@ -26,6 +26,19 @@ module.exports = async client => {
 	if (client.config.maintenance === true) {
 		client.user.setActivity('MAINTENANCE', { type: 'WATCHING' });
 	} else {
-		client.user.setActivity('for steam bans', { type: 'WATCHING' });
+		var i = 0;
+		function switchActivity() {
+			if (client.status !== 0) return;
+
+			i++;
+			if (i >= client.config.activities.length) i = 0;
+
+			var display = client.config.activities[i].value;
+			display = display.replace(/{prefix}/g, client.config.prefix);
+
+			client.user.setActivity(display, { type: client.config.activities[i].type });
+		}
+		client.setInterval(switchActivity, client.config.activitiesSwitchDelay);
+		switchActivity();
 	}
 };

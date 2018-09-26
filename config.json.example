@@ -9,5 +9,20 @@
 	"switchKeyAt": 50000,
 	"accountsPerRequest": 500,
 	"logs": "471135120347234314",
+	"emojis": {
+		"checkmark": "484008172273664030",
+		"cross": "484008260211441664"
+	},
+	"activities": [
+		{
+			"type": "WATCHING",
+			"value": "for steam bans"
+		},
+		{
+			"type": "LISTENING",
+			"value": "{prefix}"
+		}
+	],
+	"activitiesSwitchDelay": 300000,
 	"maintenance": false
 }
