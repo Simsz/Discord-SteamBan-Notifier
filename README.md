@@ -25,6 +25,18 @@ Add people to a watchlist and have them automatically be checked for a new ban a
 - `logs`
 - - Type: String
 - - Description: Discord channel ID where to log bot information. All console logs, warns & errors will be logged in there
+- `emojis`
+- - Type: Object
+- - Description: The Emoji ID for the `checkmark` and `cross` key
+- `activities`
+- - Type: Array of objects
+- - Description: List of activities to display on the bot. Follow the example
+- `activitiesSwitchDelay`
+- - Type: Integer
+- - Description: Amount of milliseconds to wait before switching between activities
+- `maintenance`
+- - Type: Boolean
+- - Description: Enables maintenance mode and only allows the owner to interact with the bot
 
 ### Config example:
 
@@ -41,6 +53,24 @@ Note: The owner ID will automatically get added to a "owner" key and will also a
 	],
 	"switchKeyAt": 50000,
 	"accountsPerRequest": 500,
-	"logs": "471135120347234315"
+	"logs": "471135120347234315",
+	"emojis": {
+		"checkmark": "484008172273664030",
+		"cross": "484008260211441664"
+	},
+	"activities": [
+		{
+			"type": "WATCHING",
+			"value": "for steam bans"
+		},
+		{
+			"type": "LISTENING",
+			"value": "{prefix}"
+		}
+	],
+	"activitiesSwitchDelay": 300000,
+	"maintenance": false
 }
 ```
+
+*Those are fake keys, don't even try.
