@@ -1,7 +1,7 @@
 module.exports = async (client, message) => {
 	if (!message.guild) return;
 
-	if (message.content.match(new RegExp('<@!?(' + client.user.id + ')>'))) {
+	if (message.content.match(new RegExp('^<@!?' + client.user.id + '>$'))) {
 		message.channel.send('My prefix is: `' + client.config.prefix + '`');
 		return;
 	}

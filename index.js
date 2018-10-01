@@ -1,10 +1,15 @@
 const fs = require('fs');
 const Enmap = require('enmap');
 const Discord = require('discord.js');
+const SteamUser = require('steam-user');
+const CSGOCoordinator = require('csgocoordinator');
+const Steam = require('steam');
+const config = require('./config.json');
+
 const client = new Discord.Client({
-	messageCacheMaxSize: 50,
-	messageCacheLifetime: 30,
-	messageSweepInterval: 60,
+	messageCacheMaxSize: 100,
+	messageCacheLifetime: 300,
+	messageSweepInterval: 120,
 	retryLimit: 5,
 	disabledEvents: [
 		'GUILD_UPDATE',
@@ -24,9 +29,6 @@ const client = new Discord.Client({
 		'MESSAGE_DELETE',
 		'MESSAGE_UPDATE',
 		'MESSAGE_DELETE_BULK',
-		'MESSAGE_REACTION_ADD',
-		'MESSAGE_REACTION_REMOVE',
-		'MESSAGE_REACTION_REMOVE_ALL',
 		'USER_UPDATE',
 		'USER_NOTE_UPDATE',
 		'USER_SETTINGS_UPDATE',
@@ -37,11 +39,15 @@ const client = new Discord.Client({
 		'WEBHOOKS_UPDATE'
 	]
 });
-
-const config = require('./config.json');
 client.config = config;
 client.accounts = new Enmap({ name: 'accounts' });
+client.premium = new Enmap({ name: 'premium' });
 client.commands = new Discord.Collection();
+client.steamUser = new SteamUser();
+client.SteamGameCoordinator = new Steam.SteamGameCoordinator(client.steamUser.client, 730);
+client.csgoUser = new CSGOCoordinator(client.steamUser, client.SteamGameCoordinator);
+client.numbers = require('./modules/numberEmojis.js');
+
 require('./modules/functions.js')(client);
 
 if (!fs.existsSync('./apiKeys.json')) {

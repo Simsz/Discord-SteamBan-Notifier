@@ -1,7 +1,47 @@
 const Discord = require('discord.js');
 const request = require('request');
+const SteamTotp = require('steam-totp');
+const SteamUser = require('steam-user');
 
 module.exports = async (client) => {
+	// Keep being logged into Steam and constantly play CSGO
+	// TODO: Figure out what happens when Steam/CSGO GC goes down and see if the bot automatically reconnects to the GC
+	var logonSettings = {
+		accountName: client.config.account.username,
+		password: client.config.account.password
+	};
+	
+	if (client.config.account.sharedSecret && client.config.account.sharedSecret.length > 5) {
+		logonSettings.authCode = SteamTotp.getAuthCode(client.config.account.sharedSecret);
+	}
+
+	client.steamUser.logOn(logonSettings);
+
+	client.steamUser.on('loggedOn', (details) => {
+		client.steamUser.setPersona(SteamUser.Steam.EPersonaState.Online);
+		client.steamUser.gamesPlayed([730]);
+		client.csgoUser.start();
+	});
+
+	client.steamUser.on('error', (err) => {
+		console.error(err);
+	});
+
+	client.steamUser.on('friendRelationship', async (sid, relationship) => {
+		if (relationship === SteamUser.Steam.EFriendRelationship.RequestRecipient) {
+			await client.premium.fetchEverything().catch(() => {});
+
+			if (client.premium.array().includes(sid.getSteamID64())) {
+				// Accept friend request
+				client.steamUser.addFriend(sid);
+			} else {
+				// Ignore friend request
+				client.steamUser.removeFriend(sid);
+			}
+		}
+	});
+
+	// Ban checking
 	async function checkBans() {
 		await client.accounts.fetchEverything();
 		var accounts = client.accounts.array();

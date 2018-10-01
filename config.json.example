@@ -24,5 +24,10 @@
 		}
 	],
 	"activitiesSwitchDelay": 300000,
+	"account": {
+		"username": "<Steam Login Username>",
+		"password": "<Steam Login Password>",
+		"sharedSecret": "<Optional Shared Secret for 2FA>"
+	},
 	"maintenance": false
 }

@@ -34,6 +34,9 @@ Add people to a watchlist and have them automatically be checked for a new ban a
 - `activitiesSwitchDelay`
 - - Type: Integer
 - - Description: Amount of milliseconds to wait before switching between activities
+- `account`
+- - Type: Object
+- - Description: `username`, `password` and optional `sharedSecret` keys for your Steam Account with a full version of CSGO
 - `maintenance`
 - - Type: Boolean
 - - Description: Enables maintenance mode and only allows the owner to interact with the bot
@@ -69,8 +72,13 @@ Note: The owner ID will automatically get added to a "owner" key and will also a
 		}
 	],
 	"activitiesSwitchDelay": 300000,
+	"account": {
+		"username": "SteamBanNotifier",
+		"password": "123BanNotifier123",
+		"sharedSecret": ""
+	},
 	"maintenance": false
 }
 ```
 
-*Those are fake keys, don't even try.
+*Those are fake keys, don't even try.*
