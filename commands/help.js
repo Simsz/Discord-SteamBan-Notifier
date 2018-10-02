@@ -2,7 +2,7 @@ const Discord = require('discord.js');
 
 exports.run = async (client, msg, args) => {
 	var app = await client.fetchApplication().catch((e) => console.error(e));
-	var inviteLink = await client.generateInvite([ 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS' ]).catch((e) => console.error(e));
+	var inviteLink = await client.generateInvite([ 'VIEW_CHANNEL', 'SEND_MESSAGES', 'EMBED_LINKS', 'MANAGE_MESSAGES' ]).catch((e) => console.error(e));
 
 	const embed = new Discord.MessageEmbed();
 	embed.setTimestamp();
@@ -14,7 +14,7 @@ exports.run = async (client, msg, args) => {
 	howToUse.push('• To add someone to the checker list write `' + client.config.prefix + client.commands.get('add').help.usage + '`');
 	howToUse.push('• To remove someone from the checker list write `' + client.config.prefix + client.commands.get('remove').help.usage + '`');
 	howToUse.push('• To see a list of all users who are currently being watched write `' + client.config.prefix + 'list`');
-	howToUse.push('• **Premium Only** command `' + client.config.prefix + 'match` allows you to list your current CSGO Matchmaking game and easily add users to the watchlist through an interface');
+	howToUse.push('• **Premium Only:** `' + client.config.prefix + 'match` allows you to list your current CSGO Matchmaking game and easily add users to the watchlist through an interface');
 	howToUse.push('');
 	howToUse.push('**All commands are per-channel**');
 	howToUse.push('Eg: Add someone to the watchlist in #admin then the ban notification will also appear in that channel and the `list` command will only return the watchlist of the current channel. If a channel is deleted its watchlist is deleted');
@@ -35,5 +35,5 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'help',
 	description: 'Show this help',
-	usage: 'help [command]'
+	usage: 'help'
 };

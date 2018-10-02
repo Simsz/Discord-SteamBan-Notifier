@@ -77,26 +77,71 @@ exports.run = async (client, msg, args) => {
 		}
 
 		var description = [];
+		var reactionsToAdd = [];
 		for (let i in res.matches[0].roundstats_legacy.reservation.account_ids) {
 			var s = SteamID.fromIndividualAccountID(res.matches[0].roundstats_legacy.reservation.account_ids[i]);
 			var prof = await client.getSteamProfile(s.getSteamID64()).catch(() => {});
-			if (client.numbers[parseInt(i) + 1]) await m.react(client.numbers[parseInt(i) + 1]); // Incase Valve ever adds a official gamemode with 10+ players
+			if (client.numbers[parseInt(i) + 1]) reactionsToAdd.push(client.numbers[parseInt(i) + 1]);
 			if (prof) description.push((client.numbers[parseInt(i) + 1] ? client.numbers[parseInt(i) + 1] : '') + ' [' + Discord.Util.escapeMarkdown(prof.personaname) + ' (' + prof.steamid + ')](https://steamcommunity.com/profiles/' + prof.steamid + ')');
 			else description.push((client.numbers[parseInt(i) + 1] ? client.numbers[parseInt(i) + 1] : '') + ' [*Failed to get name* (' + s.getSteamID64() + ')](https://steamcommunity.com/profiles/' + s.getSteamID64() + ']');
 		}
 
-		await m.react(client.emojis.get(client.config.emojis.checkmark));
-		await m.react(client.emojis.get(client.config.emojis.cross));
-
 		m.edit({embed: {
 			title: 'Success',
 			description: 'Please select the players you want to put on the watchlist and then hit confirm:\n\n' + description.join('\n'),
+			footer: {
+				text: 'Alternatively you can send a message with "1,2,3.." to make a selection'
+			},
 			color: Discord.Util.resolveColor('#00ff00')
 		}}).catch(() => {});
 
-		// TODO: Edit message before adding the reactions and also allow for a message-response such as "1 2 3,4, 5, 9"
+		var gotResponse = false;
 
+		// Await message response
+		m.channel.awaitMessages(reply => reply.author.id === msg.author.id, { max: 1, time: (5 * 60 * 1000) }).then(async (collected) => {
+			if (gotResponse === true) return;
+			gotResponse = true;
+
+			if (!collected || !collected.first() || !collected.first().content || collected.first().content.length <= 0) {
+				await m.reactions.removeAll();
+
+				m.edit({embed: {
+					title: 'Error',
+					description: 'No valid user input was given',
+					color: Discord.Util.resolveColor('#ff0000')
+				}}).catch(() => {});
+				return;
+			}
+
+			if (collected.first().deletable && !collected.first().deleted) collected.first().delete();
+
+			var selected = collected.first().content.split(/(\s+)?(,+|\s+)(\s+)??/g);
+			var usersToAdd = [];
+
+			for (let i in selected) {
+				if (!/\d+/.test(selected[i])) continue;
+				if (!res.matches[0].roundstats_legacy.reservation.account_ids[parseInt(selected[i]) - 1]) continue;
+				usersToAdd.push(SteamID.fromIndividualAccountID(res.matches[0].roundstats_legacy.reservation.account_ids[parseInt(selected[i]) - 1]));
+			}
+
+			await m.reactions.removeAll();
+
+			await m.edit({embed: {
+				title: 'Please wait...',
+				description: 'Adding ' + usersToAdd.length + ' user' + (usersToAdd.length === 1 ? '' : 's') + ' to watchlist',
+				color: Discord.Util.resolveColor('#ff8000')
+			}}).catch(() => {});
+
+			addUsersToWatchlist(usersToAdd);
+		}).catch((err) => {
+			console.error(err);
+		});
+
+		// Await reactions response
 		m.awaitReactions((r, u) => u.id === msg.author.id && [ client.config.emojis.checkmark, client.config.emojis.cross ].includes(r.emoji.id), { max: 1, time: (5 * 60 * 1000) }).then(async (collected) => {
+			if (gotResponse === true) return;
+			gotResponse = true;
+
 			if (!collected || !collected.first()) {
 				await m.reactions.removeAll();
 
@@ -139,14 +184,69 @@ exports.run = async (client, msg, args) => {
 				color: Discord.Util.resolveColor('#ff8000')
 			}}).catch(() => {});
 
-			var success = [];
-			var failed = [];
-			var duplicate = [];
+			addUsersToWatchlist(usersToAdd);
+		}).catch((err) => {
+			console.error(err);
+		});
 
-			for (let i in usersToAdd) {
-				await new Promise((resolve, reject) => {
+		// Add emojis to our message
+		for (let i in reactionsToAdd) {
+			if (gotResponse === true) break;
+
+			await m.react(reactionsToAdd[i]).then((r) => {
+				if (gotResponse === true) r.users.remove();
+			}).catch(() => {});
+		}
+
+		if (!gotResponse) await m.react(client.emojis.get(client.config.emojis.checkmark)).then((r) => {
+			if (gotResponse === true) r.users.remove();
+		}).catch(() => {});
+		if (!gotResponse) await m.react(client.emojis.get(client.config.emojis.cross)).then((r) => {
+			if (gotResponse === true) r.users.remove();
+		}).catch(() => {});
+	}
+
+	// Listen to the "liveGameForUser" event from the CSGO GC
+	client.csgoUser.on('liveGameForUser', handleLiveGame);
+
+	// Function to add users
+	async function addUsersToWatchlist(usersToAdd) {
+		var success = [];
+		var failed = [];
+		var duplicate = [];
+
+		for (let i in usersToAdd) {
+			await new Promise((resolve, reject) => {
+				client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
+				request('https://api.steampowered.com/ISteamUser/GetPlayerBans/v1?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + usersToAdd[i].getSteamID64(), (err, res, body) => {
+					if (err) {
+						failed.push(usersToAdd[i]);
+						console.error(err);
+						resolve();
+						return;
+					}
+
+					var banJson = undefined;
+					try {
+						banJson = JSON.parse(body);
+					} catch(e) {};
+
+					if (!banJson) {
+						failed.push(usersToAdd[i]);
+						console.log(body);
+						resolve();
+						return;
+					}
+
+					if (!banJson.players || banJson.players.length < 1) {
+						failed.push(usersToAdd[i]);
+						console.log(banJson);
+						resolve();
+						return;
+					}
+
 					client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
-					request('https://api.steampowered.com/ISteamUser/GetPlayerBans/v1?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + usersToAdd[i].getSteamID64(), (err, res, body) => {
+					request('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + usersToAdd[i].getSteamID64(), async (err, res, body) => {
 						if (err) {
 							failed.push(usersToAdd[i]);
 							console.error(err);
@@ -154,115 +254,82 @@ exports.run = async (client, msg, args) => {
 							return;
 						}
 
-						var banJson = undefined;
+						var profileJson = undefined;
 						try {
-							banJson = JSON.parse(body);
+							profileJson = JSON.parse(body);
 						} catch(e) {};
 
-						if (!banJson) {
+						if (!profileJson) {
 							failed.push(usersToAdd[i]);
 							console.log(body);
 							resolve();
 							return;
 						}
 
-						if (!banJson.players || banJson.players.length < 1) {
+						if (!profileJson.response) {
 							failed.push(usersToAdd[i]);
-							console.log(banJson);
+							console.log(profileJson);
 							resolve();
 							return;
 						}
 
-						client.steamAPIkeyCheck(); // We are about to use the API - Increase counter by 1 and change api key if needed
-						request('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/?key=' + client.steamAPI.keys[client.steamAPI.currentlyUsedID] + '&steamids=' + usersToAdd[i].getSteamID64(), async (err, res, body) => {
-							if (err) {
-								failed.push(usersToAdd[i]);
-								console.error(err);
-								resolve();
-								return;
-							}
-
-							var profileJson = undefined;
-							try {
-								profileJson = JSON.parse(body);
-							} catch(e) {};
-
-							if (!profileJson) {
-								failed.push(usersToAdd[i]);
-								console.log(body);
-								resolve();
-								return;
-							}
-
-							if (!profileJson.response) {
-								failed.push(usersToAdd[i]);
-								console.log(profileJson);
-								resolve();
-								return;
-							}
-
-							if (!profileJson.response.players || profileJson.response.players.length < 1) {
-								failed.push(usersToAdd[i]);
-								console.log(profileJson);
-								resolve();
-								return;
-							}
-
-							await client.accounts.fetch(profileJson.response.players[0].steamid);
-
-							if (client.accounts.get(profileJson.response.players[0].steamid)) {
-								var data = client.accounts.get(profileJson.response.players[0].steamid);
-
-								if (data.channels.includes(msg.channel.id)) {
-									duplicate.push(usersToAdd[i]);
-									resolve();
-									return;
-								}
-
-								data.channels.push(msg.channel.id);
-								data.lastSavedName = profileJson.response.players[0].personaname;
-							} else {
-								var data = {
-									steamID: profileJson.response.players[0].steamid,
-									lastSavedName: profileJson.response.players[0].personaname,
-									history: {
-										vacBans: banJson.players[0].NumberOfVACBans,
-										gameBans: banJson.players[0].NumberOfGameBans,
-										economyBans: banJson.players[0].EconomyBan,
-										communityBan: banJson.players[0].CommunityBanned
-									},
-									channels: [
-										msg.channel.id
-									]
-								};
-							}
-
-							client.accounts.set(profileJson.response.players[0].steamid, data);
-
-							success.push(usersToAdd[i]);
+						if (!profileJson.response.players || profileJson.response.players.length < 1) {
+							failed.push(usersToAdd[i]);
+							console.log(profileJson);
 							resolve();
-						});
+							return;
+						}
+
+						await client.accounts.fetch(profileJson.response.players[0].steamid);
+
+						if (client.accounts.get(profileJson.response.players[0].steamid)) {
+							var data = client.accounts.get(profileJson.response.players[0].steamid);
+
+							if (data.channels.includes(msg.channel.id)) {
+								duplicate.push(usersToAdd[i]);
+								resolve();
+								return;
+							}
+
+							data.channels.push(msg.channel.id);
+							data.lastSavedName = profileJson.response.players[0].personaname;
+						} else {
+							var data = {
+								steamID: profileJson.response.players[0].steamid,
+								lastSavedName: profileJson.response.players[0].personaname,
+								history: {
+									vacBans: banJson.players[0].NumberOfVACBans,
+									gameBans: banJson.players[0].NumberOfGameBans,
+									economyBans: banJson.players[0].EconomyBan,
+									communityBan: banJson.players[0].CommunityBanned
+								},
+								channels: [
+									msg.channel.id
+								]
+							};
+						}
+
+						client.accounts.set(profileJson.response.players[0].steamid, data);
+
+						success.push(usersToAdd[i]);
+						resolve();
 					});
 				});
-			}
+			});
+		}
 
-			var description = [
-				'Successfully addded ' + success.length + ' user' + (success.length === 1 ? '' : 's') + '.',
-				'Failed to add ' + failed.length + ' user' + (failed.length === 1 ? '' : 's') + '.',
-				'Already watching ' + duplicate.length + ' user' + (duplicate.length === 1 ? '' : 's') + '.'
-			];
+		var description = [
+			'Successfully added ' + success.length + ' user' + (success.length === 1 ? '' : 's') + '.',
+			'Failed to add ' + failed.length + ' user' + (failed.length === 1 ? '' : 's') + '.',
+			'Already watching ' + duplicate.length + ' user' + (duplicate.length === 1 ? '' : 's') + '.'
+		];
 
-			m.edit({embed: {
-				title: 'Success',
-				description: description.join('\n'),
-				color: Discord.Util.resolveColor('#00ff00')
-			}}).catch(() => {});
-		}).catch((err) => {
-			console.error(err);
-		});
+		m.edit({embed: {
+			title: 'Success',
+			description: description.join('\n'),
+			color: Discord.Util.resolveColor('#00ff00')
+		}}).catch(() => {});
 	}
-
-	client.csgoUser.on('liveGameForUser', handleLiveGame);
 };
 
 exports.help = {
