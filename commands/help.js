@@ -11,8 +11,8 @@ exports.run = async (client, msg, args) => {
 	embed.setDescription('This bot was created by ' + (app.owner ? app.owner.tag : '*Failed to fetch owner tag*') + '. Previously only available as a private version now this bot is public and also [available on Github](https://github.com/BeepFelix/discord-steamban-notifier).' + '\n' + String.fromCodePoint(0x200B));
 
 	var howToUse = [];
-	howToUse.push('• To add someone to the checker list write `' + client.config.prefix + client.commands.get('add').usage + '`');
-	howToUse.push('• To remove someone from the checker list write `' + client.config.prefix + client.commands.get('remove').usage + '`');
+	howToUse.push('• To add someone to the checker list write `' + client.config.prefix + client.commands.get('add').help.usage + '`');
+	howToUse.push('• To remove someone from the checker list write `' + client.config.prefix + client.commands.get('remove').help.usage + '`');
 	howToUse.push('• To see a list of all users who are currently being watched write `' + client.config.prefix + 'list`');
 	howToUse.push('• **Premium Only** command `' + client.config.prefix + 'match` allows you to list your current CSGO Matchmaking game and easily add users to the watchlist through an interface');
 	howToUse.push('');

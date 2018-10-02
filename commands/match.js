@@ -268,6 +268,6 @@ exports.run = async (client, msg, args) => {
 exports.help = {
 	name: 'match',
 	description: 'Gets the current Matchmaking information for a defined user or yourself',
-	usage: 'match [SteamID/ProfileLink]',
+	usage: 'match',
 	hidden: true
 };
