@@ -76,6 +76,14 @@ exports.run = async (client, msg, args) => {
 			return;
 		}
 
+		// Remove all 0 values as those are not real accounts
+		var backup = res.matches[0].roundstats_legacy.reservation.account_ids;
+		res.matches[0].roundstats_legacy.reservation.account_ids = [];
+		for (let i in backup) {
+			if (backup <= 0) continue;
+			res.matches[0].roundstats_legacy.reservation.account_ids.push(backup[i]);
+		}
+
 		var description = [];
 		var reactionsToAdd = [];
 		for (let i in res.matches[0].roundstats_legacy.reservation.account_ids) {
