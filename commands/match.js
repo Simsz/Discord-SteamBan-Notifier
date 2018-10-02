@@ -102,7 +102,7 @@ exports.run = async (client, msg, args) => {
 			if (gotResponse === true) return;
 			gotResponse = true;
 
-			if (!collected || !collected.first() || !collected.first().content || collected.first().content.length <= 0) {
+			if (!collected || !collected.first() || !collected.first().content || collected.first().content.length <= 0 || /* This looks like the shittiest regex ever */ !/^(\d?\s?(,+|\s+)\s?(\d)?)+$/.test(collected.first().content)) {
 				await m.reactions.removeAll();
 
 				m.edit({embed: {
@@ -115,7 +115,7 @@ exports.run = async (client, msg, args) => {
 
 			if (collected.first().deletable && !collected.first().deleted) collected.first().delete();
 
-			var selected = collected.first().content.split(/(\s+)?(,+|\s+)(\s+)??/g);
+			var selected = collected.first().content.split(/\s?(,+|\s+)\s?/g);
 			var usersToAdd = [];
 
 			for (let i in selected) {
