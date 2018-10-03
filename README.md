@@ -22,7 +22,7 @@ Add people to a watchlist and have them automatically be checked for a new ban a
 - - Description: How often to use 1 API key before switching to the next one
 - `accountsPerRequest`:
 - - Type: Integer
-- - Description: The amount of accounts we use per request. Steam allows us to use multiple accounts in a single API request. To my knowledge the limit is ~1000. You can test it out yourself. Just chain your own ID a bunch of times and seperate it by a comma.
+- - Description: The amount of accounts we use per request. Steam allows us to use multiple accounts in a single API request. I have tested it with 400 unique IDs and Steam always only returns 100. Therefore I would suggest not setting this higher than 100.
 - `logs`
 - - Type: String
 - - Description: Discord channel ID where to log bot information. All console logs, warns & errors will be logged in there

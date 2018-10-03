@@ -7,7 +7,7 @@
 		"<API Key 2>"
 	],
 	"switchKeyAt": 50000,
-	"accountsPerRequest": 500,
+	"accountsPerRequest": 100,
 	"logs": "471135120347234314",
 	"emojis": {
 		"checkmark": "484008172273664030",

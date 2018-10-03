@@ -1,5 +1,4 @@
 const fs = require('fs');
-const Discord = require('discord.js');
 
 module.exports = async client => {
 	if (fs.existsSync('./reboot.json')) {
@@ -10,14 +9,11 @@ module.exports = async client => {
 			return;
 		};
 
-		const embed = new Discord.MessageEmbed();
-		embed.setTimestamp();
-		embed.setTitle('Rebooted!');
+		m.embeds[0].title = 'Rebooted!';
+		var m2 = await m.edit({embed: m.embeds[0]});
 
-		var m2 = await m.edit({embed: embed});
-
-		embed.setTitle('Rebooted! (took: `' + parseInt(m2.editedTimestamp - m2.createdTimestamp) + 'ms)`');
-		await m2.edit({embed: embed});
+		m.embeds[0].title = 'Rebooted! (took: `' + parseInt(m2.editedTimestamp - m2.createdTimestamp) + 'ms)`';
+		await m2.edit({embed: m.embeds[0]});
 
 		fs.unlink('./reboot.json', ()=>{});
 	}
