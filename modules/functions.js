@@ -174,7 +174,7 @@ module.exports = (client) => {
 	process.on('uncaughtException', (err) => console.error(err));
 	process.on('unhandledRejection', (err) => console.error(err));
 
-	if (client.config.maintenance) {
+	if (!client.config.maintenance) {
 		(() => {
 			var og = console.log;
 			console.log = (n, ownerOnly = false) => {
