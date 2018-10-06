@@ -186,7 +186,7 @@ module.exports = (client) => {
 				embed.setTitle('Console log');
 				embed.setColor('#63e10f');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Log Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
@@ -212,7 +212,7 @@ module.exports = (client) => {
 				embed.setTitle('Console error');
 				embed.setColor('#b90000');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Error Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
@@ -234,7 +234,7 @@ module.exports = (client) => {
 				embed.setTitle('Console warn');
 				embed.setColor('#f27300');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Warn Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
