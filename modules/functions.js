@@ -173,7 +173,7 @@ module.exports = (client) => {
 	process.on('uncaughtException', (err) => console.error(err));
 	process.on('unhandledRejection', (err) => console.error(err));
 
-	if (!client.config.maintenance) {
+	if (client.config.maintenance) {
 		(() => {
 			var og = console.log;
 			console.log = (n, ownerOnly = false) => {
@@ -189,8 +189,8 @@ module.exports = (client) => {
 				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
-				embed.fields.push({ name: 'Log Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
-				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
+				embed.fields.push({ name: 'Log Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[i] + '```' });
 
 				if (ownerOnly === true) {
 					if (client.users.get(client.config.owner)) client.users.get(client.config.owner).send({embed: embed});
@@ -215,8 +215,8 @@ module.exports = (client) => {
 				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
-				embed.fields.push({ name: 'Error Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
-				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
+				embed.fields.push({ name: 'Error Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[i] + '```' });
 
 				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
 			}
@@ -237,8 +237,8 @@ module.exports = (client) => {
 				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
-				embed.fields.push({ name: 'Warn Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
-				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
+				embed.fields.push({ name: 'Warn Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[i] + '```' });
 
 				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
 			}
