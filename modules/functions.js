@@ -5,6 +5,7 @@ const Discord = require('discord.js');
 const SteamID = require('steamid');
 
 module.exports = (client) => {
+	// Hopefully better error handling
 	if (!('toJSON' in Error.prototype)) {
 		Object.defineProperty(Error.prototype, 'toJSON', {
 			value: () => {
@@ -173,7 +174,7 @@ module.exports = (client) => {
 	process.on('uncaughtException', (err) => console.error(err));
 	process.on('unhandledRejection', (err) => console.error(err));
 
-	if (!client.config.maintenance) {
+	if (client.config.maintenance) {
 		(() => {
 			var og = console.log;
 			console.log = (n, ownerOnly = false) => {
@@ -186,7 +187,7 @@ module.exports = (client) => {
 				embed.setTitle('Console log');
 				embed.setColor('#63e10f');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof n === 'object') ? JSON.stringify(n, null, 4) : n), true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Log Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
@@ -212,7 +213,7 @@ module.exports = (client) => {
 				embed.setTitle('Console error');
 				embed.setColor('#b90000');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof n === 'object') ? JSON.stringify(n, null, 4) : n), true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Error Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
@@ -234,7 +235,7 @@ module.exports = (client) => {
 				embed.setTitle('Console warn');
 				embed.setColor('#f27300');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(n, true), { maxLength: 1000, char: '\n' });
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof n === 'object') ? JSON.stringify(n, null, 4) : n), true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Warn Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
