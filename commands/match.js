@@ -3,12 +3,10 @@ const SteamID = require('steamid');
 const request = require('request');
 
 exports.run = async (client, msg, args) => {
-	await client.premium.fetchEverything();
-
-	if (!client.premium.get(msg.author.id)) {
+	if (!args[0]) {
 		msg.channel.send({embed: {
 			title: 'Error',
-			description: 'You are not a premium user',
+			description: 'Usage: `' + client.config.prefix + this.help.usage + '`',
 			color: Discord.Util.resolveColor('#ff0000')
 		}}).catch(() => {});
 		return;
@@ -20,30 +18,31 @@ exports.run = async (client, msg, args) => {
 	}}).catch(() => {});
 	if (!m) return;
 
-	var accountToUse = client.premium.get(msg.author.id);
-	if (client.config.admins.includes(msg.author.id) && args[0]) {
-		accountToUse = await client.steamParse64ID(args[0]).catch((err) => {
-			if (typeof err === 'string') {
-				m.edit({embed: {
-					title: 'Error',
-					description: err,
-					color: Discord.Util.resolveColor('#ff0000')
-				}}).catch(() => {});
-			} else {
-				console.error(err);
-				m.edit({embed: {
-					title: 'Error',
-					description: 'Unknown Steam Response',
-					color: Discord.Util.resolveColor('#ff0000')
-				}}).catch(() => {});
-			}
-		});
-	}
+	var accountToUse = await client.steamParse64ID(args[0]).catch((err) => {
+		if (typeof err === 'string') {
+			m.edit({embed: {
+				title: 'Error',
+				description: err,
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
+		} else {
+			console.error(err);
+			m.edit({embed: {
+				title: 'Error',
+				description: 'Unknown Steam Response',
+				color: Discord.Util.resolveColor('#ff0000')
+			}}).catch(() => {});
+		}
+	});
+	if (!accountToUse) return;
 
 	var sid = new SteamID(accountToUse);
-	var reqres = client.csgoUser.match.requestLiveGameForUser(sid.accountid);
+	var reqres = undefined;
+	try {
+		reqres = client.csgoUser.match.requestLiveGameForUser(sid.accountid);
+	} catch(e) {}; // If we get kicked out of our the steam session this will throw an error
 
-	if (reqres !== null) {
+	if (!reqres) {
 		m.edit({embed: {
 			title: 'Error',
 			description: 'I am not currently connected to the CSGO GameCoordinator. Please try again later.',
@@ -342,7 +341,6 @@ exports.run = async (client, msg, args) => {
 
 exports.help = {
 	name: 'match',
-	description: 'Gets the current Matchmaking information for a defined user or yourself',
-	usage: 'match',
-	hidden: true
+	description: 'Gets the current Matchmaking information for a user',
+	usage: 'match <SteamID/ProfileLink>'
 };

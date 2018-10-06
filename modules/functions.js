@@ -5,6 +5,23 @@ const Discord = require('discord.js');
 const SteamID = require('steamid');
 
 module.exports = (client) => {
+	if (!('toJSON' in Error.prototype)) {
+		Object.defineProperty(Error.prototype, 'toJSON', {
+			value: () => {
+				var alt = {};
+
+				var keys = [ Object.keys(this) ].concat(Object.getOwnPropertyNames(Object.keys(this))).concat(Object.getOwnPropertyNames(this)).concat(Object.getPrototypeOf(this)).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)));
+				keys.forEach((key) => {
+					alt[key] = this[key];
+				}, this);
+
+				return alt;
+			},
+			configurable: true,
+			writable: true
+		});
+	}
+
 	client.clean = (text) => {
 		if (typeof text !== 'string')
 			text = util.inspect(text, {depth: 0})
@@ -30,7 +47,7 @@ module.exports = (client) => {
 
 	client.steamParse64ID = (text) => {
 		return new Promise((resolve, reject) => {
-			text = text.replace(/[^A-Za-z0-9\]]+$/g, '');
+			text = text.replace(/[^A-Za-z0-9_-]+$/g, '');
 			text = text.split('/')[text.split('/').length - 1];
 
 			try {
@@ -50,9 +67,14 @@ module.exports = (client) => {
 						json = JSON.parse(body);
 					} catch(e) {};
 
-					if (!json || !json.response || !Array.isArray(json.response.players) || json.response.players.length < 1) {
+					if (!json || !json.response || !Array.isArray(json.response.players)) {
 						console.log(json || body);
 						reject('Malformed Steam API Response');
+						return;
+					}
+
+					if (json.response.players.length < 1) {
+						reject('Entered SteamID is not a valid user');
 						return;
 					}
 
@@ -66,7 +88,7 @@ module.exports = (client) => {
 				return;
 			}
 
-			var matches = text.match(/[A-Za-z0-9]+($|.$)/);
+			var matches = text.match(/[A-Za-z0-9_-]+($|.$)/);
 			if (!matches || matches.length < 1) {
 				reject('Entered SteamID is not a valid user');
 				return;
@@ -97,7 +119,7 @@ module.exports = (client) => {
 				}
 
 				if (!json.response.steamid) {
-					reject('Malformed Steam API Response');
+					reject('Entered SteamID is not a valid user');
 					return;
 				}
 
@@ -151,67 +173,75 @@ module.exports = (client) => {
 	process.on('uncaughtException', (err) => console.error(err));
 	process.on('unhandledRejection', (err) => console.error(err));
 
-	if (client.config.maintenance) return;
+	if (!client.config.maintenance) {
+		(() => {
+			var og = console.log;
+			console.log = (n, ownerOnly = false) => {
+				og(n);
 
-	(() => {
-		var og = console.log;
-		console.log = (n, ownerOnly = false) => {
-			og(n);
+				if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
 
-			if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
+				const embed = new Discord.MessageEmbed();
+				embed.setTimestamp();
+				embed.setTitle('Console log');
+				embed.setColor('#63e10f');
 
-			const embed = new Discord.MessageEmbed();
-			embed.setTimestamp();
-			embed.setTitle('Console log');
-			if (typeof n === 'object') n = 'JSON\n' + JSON.stringify(n, null, 4);
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				if (typeof split === 'string') split = [ split ];
 
-			var text = '```' + n;
-			embed.setDescription(text.substring(0, 2024) + '```');
-			embed.setColor('#63e10f');
+				embed.fields.push({ name: 'Log Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
 
-			if (ownerOnly === true) {
-				if (client.users.get(client.config.owner)) client.users.get(client.config.owner).send({embed: embed});
-			} else {
+				if (ownerOnly === true) {
+					if (client.users.get(client.config.owner)) client.users.get(client.config.owner).send({embed: embed});
+				} else {
+					if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
+				}
+			}
+		})();
+
+		(() => {
+			var og = console.error;
+			console.error = (n) => {
+				og(n);
+
+				if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
+
+				const embed = new Discord.MessageEmbed();
+				embed.setTimestamp();
+				embed.setTitle('Console error');
+				embed.setColor('#b90000');
+
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				if (typeof split === 'string') split = [ split ];
+
+				embed.fields.push({ name: 'Error Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
+
 				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
 			}
-		}
-	})();
+		})();
 
-	(() => {
-		var og = console.error;
-		console.error = (n) => {
-			og(n);
+		(() => {
+			var og = console.warn;
+			console.warn = (n) => {
+				og(n);
 
-			if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
+				if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
 
-			const embed = new Discord.MessageEmbed();
-			embed.setTimestamp();
-			embed.setTitle('Console log');
-			if (typeof n === 'object') n = 'JSON\n' + JSON.stringify(n, null, 4);
+				const embed = new Discord.MessageEmbed();
+				embed.setTimestamp();
+				embed.setTitle('Console warn');
+				embed.setColor('#f27300');
 
-			var text = '<@' + client.config.owner + '>\n```' + n;
-			embed.setDescription(text.substring(0, 2024) + '```');
-			embed.setColor('#b90000');
-			if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
-		}
-	})();
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(text, true), { maxLength: 1000, char: '\n' });
+				if (typeof split === 'string') split = [ split ];
 
-	(() => {
-		var og = console.warn;
-		console.warn = (n) => {
-			og(n);
+				embed.fields.push({ name: 'Warn Content', value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[0] + '```' });
+				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + (typeof n === 'object') ? 'JSON' : '' + split[i] + '```' });
 
-			if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
-
-			const embed = new Discord.MessageEmbed();
-			embed.setTimestamp();
-			embed.setTitle('Console log');
-			if (typeof n === 'object') n = 'JSON\n' + JSON.stringify(n, null, 4);
-
-			var text = '```' + n;
-			embed.setDescription(text.substring(0, 2024) + '```');
-			embed.setColor('#f27300');
-			if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
-		}
-	})();
+				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
+			}
+		})();
+	}
 };

@@ -41,7 +41,6 @@ const client = new Discord.Client({
 });
 client.config = config;
 client.accounts = new Enmap({ name: 'accounts' });
-client.premium = new Enmap({ name: 'premium' });
 client.commands = new Discord.Collection();
 client.steamUser = new SteamUser();
 client.SteamGameCoordinator = new Steam.SteamGameCoordinator(client.steamUser.client, 730);

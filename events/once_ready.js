@@ -4,20 +4,19 @@ const SteamTotp = require('steam-totp');
 const SteamUser = require('steam-user');
 
 module.exports = async (client) => {
-	// Keep being logged into Steam and constantly play CSGO
-	// TODO: Figure out what happens when Steam/CSGO GC goes down and see if the bot automatically reconnects to the GC
+	// Maintain a CSGO GameCoordinator connection
 	var logonSettings = {
 		accountName: client.config.account.username,
 		password: client.config.account.password
 	};
-	
+
 	if (client.config.account.sharedSecret && client.config.account.sharedSecret.length > 5) {
 		logonSettings.authCode = SteamTotp.getAuthCode(client.config.account.sharedSecret);
 	}
 
 	client.steamUser.logOn(logonSettings);
 
-	client.steamUser.on('loggedOn', (details) => {
+	client.steamUser.on('loggedOn', () => {
 		client.steamUser.setPersona(SteamUser.Steam.EPersonaState.Online);
 		client.steamUser.gamesPlayed([730]);
 		client.csgoUser.start();
@@ -25,20 +24,14 @@ module.exports = async (client) => {
 
 	client.steamUser.on('error', (err) => {
 		console.error(err);
-	});
 
-	client.steamUser.on('friendRelationship', async (sid, relationship) => {
-		if (relationship === SteamUser.Steam.EFriendRelationship.RequestRecipient) {
-			await client.premium.fetchEverything().catch(() => {});
-
-			if (client.premium.array().includes(sid.getSteamID64())) {
-				// Accept friend request
-				client.steamUser.addFriend(sid);
-			} else {
-				// Ignore friend request
-				client.steamUser.removeFriend(sid);
-			}
+		if (client.csgoUser._GCHelloInterval) {
+			clearInterval(client.csgoUser._GCHelloInterval);
 		}
+
+		client.csgoUser._GCStatus = false;
+
+		setTimeout(client.steamUser.logOn(logonSettings), (30 * 1000)); // Try to log back in after 30 seconds incase our session is closed
 	});
 
 	// Ban checking
@@ -68,7 +61,7 @@ module.exports = async (client) => {
 				return;
 			}
 
-			i = i + 1;
+			i++;
 
 			if (i >= steamIDs.length) {
 				// Done checking steam IDs
@@ -109,7 +102,7 @@ module.exports = async (client) => {
 
 				var i2 = -1;
 				function checkUser() {
-					i2 = i2 + 1;
+					i2++;
 
 					if (i2 >= json.players.length) {
 						// Done checking users for this request
@@ -153,10 +146,10 @@ module.exports = async (client) => {
 
 						await client.accounts.fetchEverything();
 						const oldData = client.accounts.get(steamid);
-						if (oldData.history.vacBans !== banJson.NumberOfVACBans) bits = bits + 1;
-						if (oldData.history.gameBans !== banJson.NumberOfGameBans) bits = bits + 2;
-						if (oldData.history.economyBans !== banJson.EconomyBan) bits = bits + 4;
-						if (oldData.history.communityBan !== banJson.CommunityBanned) bits = bits + 8;
+						if (oldData.history.vacBans !== banJson.NumberOfVACBans) bits += 1;
+						if (oldData.history.gameBans !== banJson.NumberOfGameBans) bits += 2;
+						if (oldData.history.economyBans !== banJson.EconomyBan) bits += 4;
+						if (oldData.history.communityBan !== banJson.CommunityBanned) bits += 8;
 
 						if (bits > 0) {
 							// Something about the user we are checking has changed
@@ -210,23 +203,25 @@ module.exports = async (client) => {
 								embed.setFooter('Bans get checked every ~3 minutes. A bit more depending on the amount of SteamIDs to check');
 
 								// TODO: Add remove-ban detection incase of a unban
-								if (bits === 0) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') - This should not be sent');
-								else if (bits === 1) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new VAC ban');
-								else if (bits === 2) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Game ban');
-								else if (bits === 3) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new VAC & Game ban');
-								else if (bits === 4) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Economy ban');
-								else if (bits === 5) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Economy & VAC ban');
-								else if (bits === 6) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Economy & Game ban');
-								else if (bits === 7) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Economy & VAC & Game ban');
-								else if (bits === 8) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community ban');
-								else if (bits === 9) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & VAC ban');
-								else if (bits === 10) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & Game ban');
-								else if (bits === 11) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & VAC & Game ban');
-								else if (bits === 12) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & Economy ban');
-								else if (bits === 13) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & Economy & VAC ban');
-								else if (bits === 14) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & Economy & Game ban');
-								else if (bits === 15) embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') has a new Community & Economy & VAC & Game ban');
-								else embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') - This should not be sent');
+								embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') ');
+
+								if (bits === 0) embed.title += '- This should not be sent';
+								else if (bits === 1) embed.title += 'has a new VAC ban';
+								else if (bits === 2) embed.title += 'has a new Game ban';
+								else if (bits === 3) embed.title += 'has a new VAC & Game ban';
+								else if (bits === 4) embed.title += 'has a new Economy ban';
+								else if (bits === 5) embed.title += 'has a new Economy & VAC ban';
+								else if (bits === 6) embed.title += 'has a new Economy & Game ban';
+								else if (bits === 7) embed.title += 'has a new Economy & VAC & Game ban';
+								else if (bits === 8) embed.title += 'has a new Community ban';
+								else if (bits === 9) embed.title += 'has a new Community & VAC ban';
+								else if (bits === 10) embed.title += 'has a new Community & Game ban';
+								else if (bits === 11) embed.title += 'has a new Community & VAC & Game ban';
+								else if (bits === 12) embed.title += 'has a new Community & Economy ban';
+								else if (bits === 13) embed.title += 'has a new Community & Economy & VAC ban';
+								else if (bits === 14) embed.title += 'has a new Community & Economy & Game ban';
+								else if (bits === 15) embed.title += 'has a new Community & Economy & VAC & Game ban';
+								else embed.title += '- This should not be sent';
 
 								await client.accounts.fetchEverything();
 

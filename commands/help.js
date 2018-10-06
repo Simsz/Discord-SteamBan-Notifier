@@ -14,8 +14,7 @@ exports.run = async (client, msg, args) => {
 	howToUse.push('• To add someone to the checker list write `' + client.config.prefix + client.commands.get('add').help.usage + '`');
 	howToUse.push('• To remove someone from the checker list write `' + client.config.prefix + client.commands.get('remove').help.usage + '`');
 	howToUse.push('• To see a list of all users who are currently being watched write `' + client.config.prefix + 'list`');
-	howToUse.push('• **Premium Only:** `' + client.config.prefix + 'match` allows you to list your current CSGO Matchmaking game and easily add users to the watchlist through an interface');
-	howToUse.push('• • Premium is basically just beta tester. Contact me if you want to try it out! *Its free*');
+	howToUse.push('• `' + client.config.prefix + client.commands.get('match').help.usage + '` allows you to list your current CSGO Matchmaking game and easily add users to the watchlist through an interface');
 	howToUse.push('');
 	howToUse.push('**All commands are per-channel**');
 	howToUse.push('Eg: Add someone to the watchlist in #admin then the ban notification will also appear in that channel and the `list` command will only return the watchlist of the current channel. If a channel is deleted its watchlist is deleted');
