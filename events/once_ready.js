@@ -31,7 +31,9 @@ module.exports = async (client) => {
 
 		client.csgoUser._GCStatus = false;
 
-		setTimeout(client.steamUser.logOn(logonSettings), (30 * 1000)); // Try to log back in after 30 seconds incase our session is closed
+		setTimeout(() => {
+			client.steamUser.logOn(logonSettings);
+		}, (30 * 1000)); // Try to log back in after 30 seconds incase our session is closed
 	});
 
 	// Ban checking
