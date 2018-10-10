@@ -40,9 +40,11 @@ exports.run = async (client, msg, args) => {
 	var reqres = undefined;
 	try {
 		reqres = client.csgoUser.match.requestLiveGameForUser(sid.accountid);
-	} catch(e) {}; // If we get kicked out of our the steam session this will throw an error
+	} catch(e) {
+		reqres = new Error('Catch Block');
+	}; // If we get kicked out of our the steam session this will throw an error
 
-	if (!reqres) {
+	if (reqres instanceof Error) {
 		m.edit({embed: {
 			title: 'Error',
 			description: 'I am not currently connected to the CSGO GameCoordinator. Please try again later.',
