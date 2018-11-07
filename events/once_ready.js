@@ -85,8 +85,7 @@ module.exports = async (client) => {
 				} catch(e) {};
 
 				if (!json) {
-					if (body.includes('Failed to load credentials')) console.log(client.steamAPI.keys, true);
-					else console.log(body);
+					console.log(body);
 					setTimeout(checkBans, 180000);
 					return;
 				}
@@ -123,25 +122,26 @@ module.exports = async (client) => {
 
 					async function userBanDetails(steamid, banJson) {
 						/*
-						0 = nothing
-						1 = new vac
-						2 = new game
+						 0 = nothing
 
-						3 = new vac & game
+						 1 = VAC
+						 2 = Game
 
-						4 = new economy
-						5 = new economy & vac
-						6 = new economy & game
-						7 = new economy & vac & game
+						 3 = VAC & Game
 
-						8 = new community
-						9 = new community & vac
-						10 = new community & game
-						11 = new community & vac & game
-						12 = new community & economy
-						13 = new community & economy & vac
-						14 = new community & economy & game
-						15 = new community & economy & vac & game
+						 4 = Economy
+						 5 = Economy & VAC
+						 6 = Economy & Game
+						 7 = Economy & VAC & Game
+
+						 8 = Community
+						 9 = Community & VAC
+						10 = Community & Game
+						11 = Community & VAC & Game
+						12 = Community & Economy
+						13 = Community & Economy & VAC
+						14 = Community & Economy & Game
+						15 = Community & Economy & VAC & Game
 						*/
 
 						let bits = 0;
@@ -204,25 +204,24 @@ module.exports = async (client) => {
 
 								embed.setFooter('Bans get checked every ~3 minutes. A bit more depending on the amount of SteamIDs to check');
 
-								// TODO: Add remove-ban detection incase of a unban
 								embed.setTitle(client.escapeEmojis(Discord.Util.escapeMarkdown(profile.personaname)) + ' (' + profile.steamid + ') ');
 
 								if (bits === 0) embed.title += '- This should not be sent';
-								else if (bits === 1) embed.title += 'has a new VAC ban';
-								else if (bits === 2) embed.title += 'has a new Game ban';
-								else if (bits === 3) embed.title += 'has a new VAC & Game ban';
-								else if (bits === 4) embed.title += 'has a new Economy ban';
-								else if (bits === 5) embed.title += 'has a new Economy & VAC ban';
-								else if (bits === 6) embed.title += 'has a new Economy & Game ban';
-								else if (bits === 7) embed.title += 'has a new Economy & VAC & Game ban';
-								else if (bits === 8) embed.title += 'has a new Community ban';
-								else if (bits === 9) embed.title += 'has a new Community & VAC ban';
-								else if (bits === 10) embed.title += 'has a new Community & Game ban';
-								else if (bits === 11) embed.title += 'has a new Community & VAC & Game ban';
-								else if (bits === 12) embed.title += 'has a new Community & Economy ban';
-								else if (bits === 13) embed.title += 'has a new Community & Economy & VAC ban';
-								else if (bits === 14) embed.title += 'has a new Community & Economy & Game ban';
-								else if (bits === 15) embed.title += 'has a new Community & Economy & VAC & Game ban';
+								else if (bits === 1) embed.title += 'VAC ban status changed';
+								else if (bits === 2) embed.title += 'Game ban status changed';
+								else if (bits === 3) embed.title += 'VAC & Game ban status changed';
+								else if (bits === 4) embed.title += 'Economy ban status changed';
+								else if (bits === 5) embed.title += 'Economy & VAC ban status changed';
+								else if (bits === 6) embed.title += 'Economy & Game ban status changed';
+								else if (bits === 7) embed.title += 'Economy & VAC & Game ban status changed';
+								else if (bits === 8) embed.title += 'Community ban status changed';
+								else if (bits === 9) embed.title += 'Community & VAC ban status changed';
+								else if (bits === 10) embed.title += 'Community & Game ban status changed';
+								else if (bits === 11) embed.title += 'Community & VAC & Game ban status changed';
+								else if (bits === 12) embed.title += 'Community & Economy ban status changed';
+								else if (bits === 13) embed.title += 'Community & Economy & VAC ban status changed';
+								else if (bits === 14) embed.title += 'Community & Economy & Game ban status changed';
+								else if (bits === 15) embed.title += 'Community & Economy & VAC & Game ban status changed';
 								else embed.title += '- This should not be sent';
 
 								await client.accounts.fetchEverything();

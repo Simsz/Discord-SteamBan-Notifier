@@ -3,26 +3,9 @@ const fs = require('fs');
 const util = require('util');
 const Discord = require('discord.js');
 const SteamID = require('steamid');
+const serializeError = require("serialize-error");
 
 module.exports = (client) => {
-	// Hopefully better error handling
-	if (!('toJSON' in Error.prototype)) {
-		Object.defineProperty(Error.prototype, 'toJSON', {
-			value: () => {
-				var alt = {};
-
-				var keys = [ Object.keys(this) ].concat(Object.getOwnPropertyNames(Object.keys(this))).concat(Object.getOwnPropertyNames(this)).concat(Object.getPrototypeOf(this)).concat(Object.getOwnPropertyNames(Object.getPrototypeOf(this)));
-				keys.forEach((key) => {
-					alt[key] = this[key];
-				}, this);
-
-				return alt;
-			},
-			configurable: true,
-			writable: true
-		});
-	}
-
 	client.clean = (text) => {
 		if (typeof text !== 'string')
 			text = util.inspect(text, {depth: 0})
@@ -177,7 +160,7 @@ module.exports = (client) => {
 	if (!client.config.maintenance) {
 		(() => {
 			var og = console.log;
-			console.log = (n, ownerOnly = false) => {
+			console.log = (n) => {
 				og(n);
 
 				if (!client.config.logs || client.config.logs.length < 1 || client.status !== 0) return;
@@ -193,11 +176,7 @@ module.exports = (client) => {
 				embed.fields.push({ name: 'Log Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });
 				for (let i = 1; i < split.length; i++) embed.fields.push({ name: String.fromCodePoint(0x200B), value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[i] + '```' });
 
-				if (ownerOnly === true) {
-					if (client.users.get(client.config.owner)) client.users.get(client.config.owner).send({embed: embed});
-				} else {
-					if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
-				}
+				if (client.channels.get(client.config.logs)) client.channels.get(client.config.logs).send({embed: embed});
 			}
 		})();
 
@@ -213,7 +192,17 @@ module.exports = (client) => {
 				embed.setTitle('Console error');
 				embed.setColor('#b90000');
 
-				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof n === 'object') ? JSON.stringify(n, null, 4) : n), true), { maxLength: 1000, char: '\n' });
+				var serializedError = undefined;
+				try {
+					serializedError = serializeError(err);
+					delete serializedError.stack;
+				} catch(e) {};
+
+				if (serializedError === undefined) {
+					serializedError = n;
+				}
+
+				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof serializedError === 'object') ? JSON.stringify(serializedError, null, 4) : serializedError), true), { maxLength: 1000, char: '\n' });
 				if (typeof split === 'string') split = [ split ];
 
 				embed.fields.push({ name: 'Error Content', value: '```' + ((typeof n === 'object') ? 'JSON\n' : '') + split[0] + '```' });

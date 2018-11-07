@@ -18,6 +18,7 @@
     "moment": "^2.22.2",
     "moment-duration-format": "^2.2.2",
     "request": "^2.87.0",
+    "serialize-error": "^3.0.0",
     "steam": "^1.4.0",
     "steam-totp": "^2.1.0",
     "steam-user": "^3.28.2",
