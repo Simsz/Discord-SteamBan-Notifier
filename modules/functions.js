@@ -157,7 +157,7 @@ module.exports = (client) => {
 	process.on('uncaughtException', (err) => console.error(err));
 	process.on('unhandledRejection', (err) => console.error(err));
 
-	if (!client.config.maintenance) {
+	if (client.config.maintenance) {
 		(() => {
 			var og = console.log;
 			console.log = (n) => {
@@ -192,14 +192,12 @@ module.exports = (client) => {
 				embed.setTitle('Console error');
 				embed.setColor('#b90000');
 
-				var serializedError = undefined;
-				try {
-					serializedError = serializeError(err);
-					delete serializedError.stack;
-				} catch(e) {};
-
-				if (serializedError === undefined) {
-					serializedError = n;
+				var serializedError = serializeError(n);
+				var keys = Object.keys(serializedError);
+				for (let key of keys) {
+					if (serializedError[key].length > 500) {
+						serializedError[key] = serializedError[key].slice(0, 500) + "...";
+					}
 				}
 
 				var split = Discord.Util.splitMessage(Discord.Util.escapeMarkdown(((typeof serializedError === 'object') ? JSON.stringify(serializedError, null, 4) : serializedError), true), { maxLength: 1000, char: '\n' });
