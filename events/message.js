@@ -1,3 +1,5 @@
+const Discord = require('discord.js');
+
 module.exports = async (client, message) => {
 	if (!message.guild) return;
 
@@ -20,6 +22,16 @@ module.exports = async (client, message) => {
 
 	const cmd = client.commands.get(command);
 	if (cmd) {
-		cmd.run(client, message, args);
+		cmd.run(client, message, args).catch((err) => {
+			console.error(err);
+
+			message.channel.send({
+				embed: {
+					title: 'You have caused an error!',
+					description: 'Apologies! Information has been logged and I will get onto fixing it as fast as I can!',
+					color: Discord.Util.resolveColor('#00AA00')
+				}
+			}).catch(() => {});
+		});
 	}
 };

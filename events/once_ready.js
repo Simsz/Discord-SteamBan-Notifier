@@ -33,7 +33,7 @@ module.exports = async (client) => {
 
 		setTimeout(() => {
 			client.steamUser.logOn(logonSettings);
-		}, (30 * 1000)); // Try to log back in after 30 seconds incase our session is closed
+		}, (10 * 60 * 1000)); // Try to log back in after 10 minutes incase our session is closed
 	});
 
 	// Ban checking

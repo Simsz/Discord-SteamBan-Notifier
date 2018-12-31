@@ -143,7 +143,7 @@ exports.run = async (client, msg, args) => {
 					var description = [];
 					description.push('__**Privacy Status:**__ ' + (profile.communityvisibilitystate === 3 ? 'Public' : 'Private'));
 					if (profile.loccountrycode) description.push('__**Country:**__ ' + ':flag_' + profile.loccountrycode.toLowerCase() + ':');
-					if (profile.profileurl) description.push('__**Vanity URL:**__ ' + Discord.Util.escapeMarkdown(profile.profileurl.split('/id/').pop().replace('/', '')));
+					if (profile.profileurl && profile.profileurl.split('/id/').length >= 2) description.push('__**Vanity URL:**__ ' + Discord.Util.escapeMarkdown(profile.profileurl.split('/id/').pop().replace('/', '')));
 					if (profile.realname) description.push('__**Real Name:**__ ' + client.escapeEmojis(Discord.Util.escapeMarkdown(profile.realname)));
 					description.push(String.fromCodePoint(0x200B));
 					embed.addField('General Profile Information', description.join('\n'));
