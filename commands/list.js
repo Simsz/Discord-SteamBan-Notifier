@@ -114,7 +114,7 @@ exports.run = async (client, msg, args) => {
 					r.users.remove(user.id).catch(() => {});
 				} else if (r.emoji.name === '⏹') {
 					// Stop
-					collector.stop().catch(() => {});
+					collector.stop();
 				}
 			});
 			collector.on('end', (collected, reason) => {
